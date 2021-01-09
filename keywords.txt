@@ -1,0 +1,19 @@
+#######################################
+# Syntax Coloring Map 
+#######################################
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+size	KEYWORD2
+getItem	KEYWORD2
+setItem	KEYWORD2
+pushItem	KEYWORD2
+FillList	KEYWORD2
+RawAccess KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
