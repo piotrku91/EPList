@@ -51,13 +51,14 @@ private:
   const unsigned int m_StringSize; // Size of actual size of Item defined by template.
   unsigned int m_SpaceSize;        // Max amount of items available.
   unsigned int ItemsCounter;       // Keeps size of list on the begin of EEPROM (Address 0x0);
+  short int Delay;       // Default delay after access of EEPROM to solve stability.
 
   char m_Value[InitStringSize]; // Last touched item on list
 
   ExternalEEPROM Memory; // SparkFun_External_EEPROM object
 
 public: // Constructors
-  EPList(uint8_t EEPROMAddress, int MemorySize, uint8_t PageSize) : m_StringSize{InitStringSize}, ItemsCounter{0}
+  EPList(uint8_t EEPROMAddress, int MemorySize, uint8_t PageSize) : m_StringSize{InitStringSize}, ItemsCounter{0}, Delay{10}
   {
     Memory.begin(EEPROMAddress);
     Memory.setMemorySize(MemorySize);
@@ -84,8 +85,7 @@ public:                                                                         
   bool pushItem(const char *NewString);                                                                                           // Add new item on the end
   const unsigned int size();                                                                                                      // Return actual size of list
   const unsigned int CountSpace() { return m_SpaceSize = floor((Memory.getMemorySize() - sizeof(ItemsCounter)) / m_StringSize); } // Count available space for that size of items
-  bool isFreeSpace() {return (ItemsCounter<=m_SpaceSize);};
-
+  bool isFreeSpace() { return (ItemsCounter < m_SpaceSize); };                                                                    // Checks if is some space to store the data
 
   bool ClearList(bool areyousure = false);               // !!!!! Erasing full list !!!!!!
   void FillList(int ItemsToFill, const char *NewString); // !!!!! Erasing full list and fill by NewString !!!!!!

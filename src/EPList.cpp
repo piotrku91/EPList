@@ -22,14 +22,14 @@ template <unsigned int InitStringSize>
 const unsigned int EPList<InitStringSize>::size()
 {
   return Memory.get(0, ItemsCounter);
-  delay(10);
+  delay(Delay);
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <unsigned int InitStringSize>
 void EPList<InitStringSize>::SaveCounter()
 {
-  delay(10);
+  delay(Delay);
   Memory.put(0, ItemsCounter);
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,7 @@ const char *EPList<InitStringSize>::getItem(const unsigned int &Index)
   if (Index < ItemsCounter)
   {
     Memory.get(sizeof(ItemsCounter) + (Index * m_StringSize), m_Value);
+    delay(Delay);
     return m_Value;
   };
 
@@ -60,7 +61,7 @@ bool EPList<InitStringSize>::setItem(const unsigned int &Index, const char *NewC
     {
       strcpy(m_Value, NewCaption);
       Memory.put(sizeof(ItemsCounter) + (Index * m_StringSize), m_Value);
-
+      delay(Delay);
       return true; // Changed
     };
 
@@ -81,9 +82,8 @@ bool EPList<InitStringSize>::pushItem(const char *NewCaption)
 
     ItemsCounter++;
     SaveCounter();
-   
-
     Memory.put(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize), m_Value);
+    delay(Delay);
 
     return true; // Changed
   };
@@ -96,7 +96,6 @@ bool EPList<InitStringSize>::ClearList(bool areyousure)
 {
   if ((MemReady()) && (areyousure))
   {
-
     Memory.erase();
     ItemsCounter = 0;
     Memory.put(0, ItemsCounter);
@@ -128,7 +127,7 @@ void EPList<InitStringSize>::FillList(int ItemsToFill, const char *NewString)
   for (int i = 0; i <= ItemsToFill; i++) // Fill list by new string
   {
     pushItem(NewString);
-    delay(10);
+    delay(Delay);
   };
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
