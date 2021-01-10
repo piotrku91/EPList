@@ -3,11 +3,10 @@
 
 /*
 Arduino EEPROM CString List Manager  - EPList (For keep some Strings on External EEPROM and minimize use memory on Arduino Board).
-Template class header file.
 
 Written by Piotr Kupczyk (dajmosster@gmail.com) 
 2020
-v. 0.3
+v. 0.5
 
 Github: https://github.com/piotrku91/
 
@@ -19,15 +18,15 @@ SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanag
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <int InitStringSize>
-const int EPList<InitStringSize>::size()
+template <unsigned int InitStringSize>
+const unsigned int EPList<InitStringSize>::size()
 {
   return Memory.get(0, ItemsCounter);
   delay(10);
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 void EPList<InitStringSize>::SaveCounter()
 {
   delay(10);
@@ -35,16 +34,14 @@ void EPList<InitStringSize>::SaveCounter()
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
-const char *EPList<InitStringSize>::getItem(const uint8_t &Index)
+template <unsigned int InitStringSize>
+const char *EPList<InitStringSize>::getItem(const unsigned int &Index)
 {
   if (!MemReady())
     return "NR!"; // NOT READY
   if (Index < ItemsCounter)
   {
-    m_ActualIndex = Index;
-
-    Memory.get(sizeof(ItemsCounter) + (m_ActualIndex * m_StringSize), m_Value);
+    Memory.get(sizeof(ItemsCounter) + (Index * m_StringSize), m_Value);
     return m_Value;
   };
 
@@ -53,8 +50,8 @@ const char *EPList<InitStringSize>::getItem(const uint8_t &Index)
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
-bool EPList<InitStringSize>::setItem(const uint8_t &Index, const char *NewCaption)
+template <unsigned int InitStringSize>
+bool EPList<InitStringSize>::setItem(const unsigned int &Index, const char *NewCaption)
 {
   if (MemReady())
   {
@@ -62,8 +59,7 @@ bool EPList<InitStringSize>::setItem(const uint8_t &Index, const char *NewCaptio
     if (Index < ItemsCounter)
     {
       strcpy(m_Value, NewCaption);
-      m_ActualIndex = Index;
-      Memory.put(sizeof(ItemsCounter) + (m_ActualIndex * m_StringSize), m_Value);
+      Memory.put(sizeof(ItemsCounter) + (Index * m_StringSize), m_Value);
 
       return true; // Changed
     };
@@ -74,19 +70,20 @@ bool EPList<InitStringSize>::setItem(const uint8_t &Index, const char *NewCaptio
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 bool EPList<InitStringSize>::pushItem(const char *NewCaption)
 {
-  if (MemReady())
+
+  if ((MemReady()) && (isFreeSpace()))
   {
 
     strcpy(m_Value, NewCaption);
 
     ItemsCounter++;
     SaveCounter();
-    m_ActualIndex = ItemsCounter - 1;
+   
 
-    Memory.put(sizeof(ItemsCounter) + (m_ActualIndex * m_StringSize), m_Value);
+    Memory.put(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize), m_Value);
 
     return true; // Changed
   };
@@ -94,7 +91,7 @@ bool EPList<InitStringSize>::pushItem(const char *NewCaption)
   return false; // Not Changed (memory not ready)
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 bool EPList<InitStringSize>::ClearList(bool areyousure)
 {
   if ((MemReady()) && (areyousure))
@@ -109,21 +106,21 @@ bool EPList<InitStringSize>::ClearList(bool areyousure)
   return false;  // Not Changed (memory not ready)
 };
 
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 const ExternalEEPROM *EPList<InitStringSize>::RawAccess()
 {
   return &Memory;
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
-const char * EPList<InitStringSize>::operator[](const uint8_t &Index)
+template <unsigned int InitStringSize>
+const char * EPList<InitStringSize>::operator[](const unsigned int &Index)
 {
   return getItem(Index);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 void EPList<InitStringSize>::FillList(int ItemsToFill, const char *NewString)
 {
   ClearList(true); // Erase list
@@ -136,6 +133,6 @@ void EPList<InitStringSize>::FillList(int ItemsToFill, const char *NewString)
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 bool EPList<InitStringSize>::MemReady() { return Memory.isConnected(); };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

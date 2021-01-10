@@ -7,7 +7,7 @@ Template class header file.
 
 Written by Piotr Kupczyk (dajmosster@gmail.com) 
 2020
-v. 0.3
+v. 0.5
 
 Github: https://github.com/piotrku91/
 
@@ -44,53 +44,56 @@ Address 4 + (2*64) -> 00 00 00 00 00 00 00 00 00 00 00 00 ... (Item 2) - char ar
 
 */
 
-template <int InitStringSize>
+template <unsigned int InitStringSize>
 class EPList
 {
 private:
-  unsigned int ItemsCounter; // Keeps size of list on the begin of EEPROM (Address 0x0);
-  const int m_StringSize; // Size of actual size of Item defined by template.
+  const unsigned int m_StringSize; // Size of actual size of Item defined by template.
+  unsigned int m_SpaceSize;        // Max amount of items available.
+  unsigned int ItemsCounter;       // Keeps size of list on the begin of EEPROM (Address 0x0);
 
-  uint8_t m_ActualIndex; // Last touched item on list
   char m_Value[InitStringSize]; // Last touched item on list
 
   ExternalEEPROM Memory; // SparkFun_External_EEPROM object
 
 public: // Constructors
-  EPList(uint8_t EEPROMAddress,int MemorySize,uint8_t PageSize) : m_StringSize{InitStringSize}, ItemsCounter(0)
+  EPList(uint8_t EEPROMAddress, int MemorySize, uint8_t PageSize) : m_StringSize{InitStringSize}, ItemsCounter{0}
   {
     Memory.begin(EEPROMAddress);
     Memory.setMemorySize(MemorySize);
-    Memory.setPageSize(PageSize); 
-    Memory.enablePollForWriteComplete(); 
-    Memory.setPageWriteTime(3); 
+    Memory.setPageSize(PageSize);
+    Memory.enablePollForWriteComplete();
+    Memory.setPageWriteTime(3);
 
     ItemsCounter = size(); // Load Items counter
+    CountSpace();
   };
-
-  EPList(uint8_t EEPROMAddress=0x50) : m_StringSize{InitStringSize}, ItemsCounter(0) {ItemsCounter = size();};
+  EPList(uint8_t EEPROMAddress = 0x50) : m_StringSize{InitStringSize}, ItemsCounter(0)
+  {
+    ItemsCounter = size();
+    CountSpace();
+  };
 
 private: // Private functions
   bool MemReady();
   void SaveCounter(); // Save size of list
 
-public: // Public Functions
-  const char *getItem(const uint8_t &Index);
-  bool setItem(const uint8_t &Index, const char *NewString);
-  bool pushItem(const char *NewString);
-  const int size(); // Return actual size of list
+public:                                                                                                                           // Public Functions
+  const char *getItem(const unsigned int &Index);                                                                                 // Return item in index
+  bool setItem(const unsigned int &Index, const char *NewString);                                                                 // Set item in index by NewString
+  bool pushItem(const char *NewString);                                                                                           // Add new item on the end
+  const unsigned int size();                                                                                                      // Return actual size of list
+  const unsigned int CountSpace() { return m_SpaceSize = floor((Memory.getMemorySize() - sizeof(ItemsCounter)) / m_StringSize); } // Count available space for that size of items
+  bool isFreeSpace() {return (ItemsCounter<=m_SpaceSize);};
 
-  bool ClearList(bool areyousure = false); // !!!!! Erasing full list !!!!!!
-  void FillList(int ItemsToFill,const char *NewString); // !!!!! Erasing full list and fill by NewString !!!!!!
 
-  const ExternalEEPROM* RawAccess(); // Access to SparkFun_External_EEPROM object from outside of class.
+  bool ClearList(bool areyousure = false);               // !!!!! Erasing full list !!!!!!
+  void FillList(int ItemsToFill, const char *NewString); // !!!!! Erasing full list and fill by NewString !!!!!!
+
+  const ExternalEEPROM *RawAccess(); // Access to SparkFun_External_EEPROM object from outside of class.
 
   // Operators overload
-  const char* operator[](const uint8_t &Index);
-
-
-
+  const char *operator[](const unsigned &Index);
 };
 
 #endif
-
