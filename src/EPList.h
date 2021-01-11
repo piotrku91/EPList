@@ -81,7 +81,7 @@ private: // Private functions
 
 public:                                                                                                                           // Public Functions
   const char *getItem(const unsigned int &Index);                                                                                 // Return item in index
-  bool setItem(const unsigned int &Index, const char *NewString);                                                                 // Set item in index by NewString
+  bool setItem(const unsigned int &Index, const char* NewString);                                                                 // Set item in index by NewString
   bool pushItem(const char *NewString);                                                                                           // Add new item on the end
   const unsigned int size();                                                                                                      // Return actual size of list
   const unsigned int CountSpace() { return m_SpaceSize = floor((Memory.getMemorySize() - sizeof(ItemsCounter)) / m_StringSize); } // Count available space for that size of items

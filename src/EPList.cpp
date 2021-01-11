@@ -59,8 +59,13 @@ bool EPList<InitStringSize>::setItem(const unsigned int &Index, const char *NewC
 
     if (Index < ItemsCounter)
     {
-      strcpy(m_Value, NewCaption);
-      Memory.put(sizeof(ItemsCounter) + (Index * m_StringSize), m_Value);
+      short int tmpCnt = strlen(NewCaption);
+      for (int i=0;i<tmpCnt;i+=31) // Send to memory in parts of bytes.
+      {
+      strcpy(m_Value, NewCaption+i);
+      Memory.put(sizeof(ItemsCounter) + (Index * m_StringSize)+i, m_Value);
+      delay(2);
+      };
       delay(Delay);
       return true; // Changed
     };

@@ -30,9 +30,11 @@ void loop()
   Serial.println(EC->CountSpace());
   //delay(5000);
 
-   //Example of add some items.
+   Example of add some items.
    EC->pushItem("I'm inside the chip. ");
    EC->pushItem("Save your space. Thank you.");
+
+   //EC->setItem(0,"b1231456789012314567890123145678911231456789112314567891000000"); // Example of 63 bytes String + 1 byte for null char.
 
 
   // Example of read full list
