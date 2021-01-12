@@ -2,16 +2,16 @@
 #include <EPList.cpp> // Include cpp file as well for link template functions.
 
 /*
-Arduino EEPROM CString List Manager  - EPList (For keep some Strings on External EEPROM and minimize use memory on Arduino Board).
+Arduino EEPROM CString List Manager  - EPList (For keep some Strings on Arduino EEPROM / External EEPROM and minimize use memory on Arduino Board).
 
 Written by Piotr Kupczyk (dajmosster@gmail.com) 
 2020
-v. 0.8
+v. 0.9
 
 Github: https://github.com/piotrku91/
 
 Depedencies:
-SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanager/All#SparkFun_External_EEPROM
+SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanager/All#SparkFun_External_EEPROM (for External EEPROM's)
 
 */
 
@@ -30,11 +30,14 @@ void setup()
 
 void loop()
 {
-  EPList<64> *EC = new EPList<64>(0x50, 32000, 128); // Example of Dynamic allocation
+  //EPList<ExternalEEPROM,64> *EC = new EPList<ExternalEEPROM,64>(0x50, 32000); // Example of Dynamic allocation (ExternalEEPROM)
+ EPList<EEPROMClass,64> *EC = new EPList<EEPROMClass,64>(4096); // Example of Dynamic allocation (Arduino builtin EEPROM)
 
-  // EC->ClearList(true); // Example of erase the list.
-   //EC->FillList(EC->CountSpace(),"DEFAULT"); // Example of clear list and init full available space by DEFAULT.
-  // digitalWrite(LED_BUILTIN,HIGH); // Set as high after clearing EEPROM memory.
+ // If you don't like access by pointer you can access by reference -> EPList<ExternalEEPROM,64>& ECr = *EC;
+
+  // EC->ClearList(true); // Example of erase EEPROM
+ //  EC->FillList(10,"DEFAULT"); // Example of clear list (erase EEPROM) and init space by DEFAULT. 
+   digitalWrite(LED_BUILTIN,HIGH); // Set as high after clearing EEPROM memory.
    
 
   Serial.print("Items count: ");
@@ -48,7 +51,7 @@ void loop()
  //  EC->pushItem("I'm inside the chip. ");
   // EC->pushItem("Save your space. Thank you.");
 
-//   EC->setItem(0,"b1231456789012314567890123145678911231456789112314567891000000a"); // Example of 64 bytes String
+   //EC->setItem(0,"b1231456789012314567890123145678911231456789112314567891000000a"); // Example of 64 bytes String
   // EC->removeItem(); // Remove last item on the list
 
   // Example of read full list
@@ -56,7 +59,9 @@ void loop()
   {
     Serial.print(i);
     Serial.print(" : ");
+    
     Serial.println((*EC)[i]); // Access to item by overloaded operator [] (same as EC->getItem(i);). For assign use only EC->setItem(i,"example");
+                              // Reference example: // Serial.println(ECr[i]);
   };
 
   delay(1000);

@@ -1,22 +1,22 @@
 #include "EPList.h"
 
 /*
-Arduino EEPROM CString List Manager  - EPList (For keep some Strings on External EEPROM and minimize use memory on Arduino Board).
+Arduino EEPROM CString List Manager  - EPList (For keep some Strings on Arduino EEPROM / External EEPROM and minimize use memory on Arduino Board).
 
 Written by Piotr Kupczyk (dajmosster@gmail.com) 
 2020
-v. 0.8
+v. 0.9
 
 Github: https://github.com/piotrku91/
 
 Depedencies:
-SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanager/All#SparkFun_External_EEPROM
+SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanager/All#SparkFun_External_EEPROM (for External EEPROM's)
 
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <unsigned int InitStringSize>
-const unsigned int EPList<InitStringSize>::size()
+template <typename T,unsigned int InitStringSize>
+const unsigned int EPList<T,InitStringSize>::size()
 {
   delay(Delay);
   return Memory.get(0, ItemsCounter);
@@ -24,16 +24,16 @@ const unsigned int EPList<InitStringSize>::size()
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-void EPList<InitStringSize>::SaveCounter()
+template <typename T,unsigned int InitStringSize>
+void EPList<T,InitStringSize>::SaveCounter()
 {
   delay(Delay);
   Memory.put(0, ItemsCounter);
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-const char *EPList<InitStringSize>::getItem(const unsigned int &Index)
+template <typename T,unsigned int InitStringSize>
+const char *EPList<T,InitStringSize>::getItem(const unsigned int &Index)
 {
   if (!MemReady())
     return "NR!"; // NOT READY
@@ -49,8 +49,8 @@ const char *EPList<InitStringSize>::getItem(const unsigned int &Index)
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-bool EPList<InitStringSize>::setItem(const unsigned int &Index, const char *NewCaption)
+template <typename T,unsigned int InitStringSize>
+bool EPList<T,InitStringSize>::setItem(const unsigned int &Index, const char *NewCaption)
 {
   if (MemReady())
   {
@@ -73,9 +73,8 @@ bool EPList<InitStringSize>::setItem(const unsigned int &Index, const char *NewC
   return false; // Not Changed (memory not ready)
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <unsigned int InitStringSize>
-bool EPList<InitStringSize>::pushItem(const char *NewCaption)
+template <typename T,unsigned int InitStringSize>
+bool EPList<T,InitStringSize>::pushItem(const char *NewCaption)
 {
 
   if ((MemReady()) && (isFreeSpace()))
@@ -91,7 +90,6 @@ bool EPList<InitStringSize>::pushItem(const char *NewCaption)
     for (int i = 0; (i <= tmpCnt); i++) // Send to memory in parts of bytes.
     {
       Memory.write(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize) + i, NewCaption[i]);
-      //  Memory.put(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize), m_Value);
       delay(Delay);
     };
 
@@ -103,8 +101,8 @@ bool EPList<InitStringSize>::pushItem(const char *NewCaption)
   return false; // Not Changed (memory not ready)
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <unsigned int InitStringSize>
-bool EPList<InitStringSize>::removeItem()
+template <typename T,unsigned int InitStringSize>
+bool EPList<T,InitStringSize>::removeItem()
 {
   if ((MemReady()) && (ItemsCounter > 0))
   {
@@ -124,12 +122,17 @@ bool EPList<InitStringSize>::removeItem()
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-bool EPList<InitStringSize>::ClearList(bool areyousure)
+template <typename T,unsigned int InitStringSize>
+bool EPList<T,InitStringSize>::ClearList(bool areyousure)
 {
   if ((MemReady()) && (areyousure))
   {
-    Memory.erase();
+
+
+  for (uint32_t addr = 0; addr < m_MemorySize; addr++)
+    Memory.write(addr, 0x00);
+    delay(Delay);
+
     ItemsCounter = 0;
     Memory.put(0, ItemsCounter);
 
@@ -138,22 +141,22 @@ bool EPList<InitStringSize>::ClearList(bool areyousure)
   return false; // Not Changed (memory not ready)
 };
 
-template <unsigned int InitStringSize>
-const ExternalEEPROM *EPList<InitStringSize>::RawAccess()
+template <typename T,unsigned int InitStringSize>
+const T *EPList<T,InitStringSize>::RawAccess()
 {
   return &Memory;
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-const char *EPList<InitStringSize>::operator[](const unsigned int &Index)
+template <typename T,unsigned int InitStringSize>
+const char *EPList<T,InitStringSize>::operator[](const unsigned int &Index)
 {
   return getItem(Index);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-void EPList<InitStringSize>::FillList(int ItemsToFill, const char *NewString)
+template <typename T,unsigned int InitStringSize>
+void EPList<T,InitStringSize>::FillList(int ItemsToFill, const char *NewString)
 {
   ClearList(true); // Erase list
 
@@ -165,6 +168,8 @@ void EPList<InitStringSize>::FillList(int ItemsToFill, const char *NewString)
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <unsigned int InitStringSize>
-bool EPList<InitStringSize>::MemReady() { return Memory.isConnected(); };
+template <typename T,unsigned int InitStringSize>
+bool EPList<T,InitStringSize>::MemReady() { return true; };
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
