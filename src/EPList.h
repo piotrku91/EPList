@@ -7,7 +7,7 @@ Template class header file.
 
 Written by Piotr Kupczyk (dajmosster@gmail.com) 
 2020
-v. 0.5
+v. 0.8
 
 Github: https://github.com/piotrku91/
 
@@ -85,12 +85,20 @@ public:                                                                         
   bool pushItem(const char *NewString);                                                                                           // Add new item on the end
   const unsigned int size();                                                                                                      // Return actual size of list
   const unsigned int CountSpace() { return m_SpaceSize = floor((Memory.getMemorySize() - sizeof(ItemsCounter)) / m_StringSize); } // Count available space for that size of items
-  bool isFreeSpace() { return (ItemsCounter < m_SpaceSize); };                                                                    // Checks if is some space to store the data
+  bool isFreeSpace() { return (ItemsCounter < m_SpaceSize); };       
+  bool removeItem();                                                             // Checks if is some space to store the data
 
   bool ClearList(bool areyousure = false);               // !!!!! Erasing full list !!!!!!
   void FillList(int ItemsToFill, const char *NewString); // !!!!! Erasing full list and fill by NewString !!!!!!
 
   const ExternalEEPROM *RawAccess(); // Access to SparkFun_External_EEPROM object from outside of class.
+
+  void extract_substr(char const *s, char *sub, size_t from, size_t to)
+{
+    size_t sublen = to - from;
+    memcpy(sub, s + from, sublen);
+    sub[sublen] = '\0';
+}
 
   // Operators overload
   const char *operator[](const unsigned &Index);

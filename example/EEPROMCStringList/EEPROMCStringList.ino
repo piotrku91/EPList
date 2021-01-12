@@ -1,6 +1,20 @@
 #include <EPList.h>
 #include <EPList.cpp> // Include cpp file as well for link template functions.
 
+/*
+Arduino EEPROM CString List Manager  - EPList (For keep some Strings on External EEPROM and minimize use memory on Arduino Board).
+
+Written by Piotr Kupczyk (dajmosster@gmail.com) 
+2020
+v. 0.8
+
+Github: https://github.com/piotrku91/
+
+Depedencies:
+SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanager/All#SparkFun_External_EEPROM
+
+*/
+
 enum ExampleTextsID {Text1=0,Text2=1}; // Use enum for name indexes of items on the list.
 
 void setup()
@@ -30,12 +44,12 @@ void loop()
   Serial.println(EC->CountSpace());
   //delay(5000);
 
-   Example of add some items.
-   EC->pushItem("I'm inside the chip. ");
-   EC->pushItem("Save your space. Thank you.");
+  // Example of add some items.
+ //  EC->pushItem("I'm inside the chip. ");
+  // EC->pushItem("Save your space. Thank you.");
 
-   //EC->setItem(0,"b1231456789012314567890123145678911231456789112314567891000000"); // Example of 63 bytes String + 1 byte for null char.
-
+//   EC->setItem(0,"b1231456789012314567890123145678911231456789112314567891000000a"); // Example of 64 bytes String
+  // EC->removeItem(); // Remove last item on the list
 
   // Example of read full list
   for (int i = 0; i < EC->size(); i++)

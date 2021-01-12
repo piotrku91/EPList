@@ -1,12 +1,11 @@
 #include "EPList.h"
 
-
 /*
 Arduino EEPROM CString List Manager  - EPList (For keep some Strings on External EEPROM and minimize use memory on Arduino Board).
 
 Written by Piotr Kupczyk (dajmosster@gmail.com) 
 2020
-v. 0.5
+v. 0.8
 
 Github: https://github.com/piotrku91/
 
@@ -15,14 +14,13 @@ SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanag
 
 */
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <unsigned int InitStringSize>
 const unsigned int EPList<InitStringSize>::size()
 {
-  return Memory.get(0, ItemsCounter);
   delay(Delay);
+  return Memory.get(0, ItemsCounter);
+  
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,16 +54,16 @@ bool EPList<InitStringSize>::setItem(const unsigned int &Index, const char *NewC
 {
   if (MemReady())
   {
-
-    if (Index < ItemsCounter)
+    int tmpCnt = strlen(NewCaption);
+    if ((Index < ItemsCounter) && (tmpCnt <= m_StringSize))
     {
-      short int tmpCnt = strlen(NewCaption);
-      for (int i=0;i<tmpCnt;i+=31) // Send to memory in parts of bytes.
+
+      for (int i = 0; (i <= tmpCnt); i++) // Send to memory in parts of bytes.
       {
-      strcpy(m_Value, NewCaption+i);
-      Memory.put(sizeof(ItemsCounter) + (Index * m_StringSize)+i, m_Value);
-      delay(2);
+        Memory.write(sizeof(ItemsCounter) + (Index * m_StringSize) + i, NewCaption[i]);
+        delay(Delay);
       };
+
       delay(Delay);
       return true; // Changed
     };
@@ -83,11 +81,20 @@ bool EPList<InitStringSize>::pushItem(const char *NewCaption)
   if ((MemReady()) && (isFreeSpace()))
   {
 
-    strcpy(m_Value, NewCaption);
+    int tmpCnt = strlen(NewCaption);
+    if (tmpCnt >= m_StringSize)
+      return false;
 
     ItemsCounter++;
     SaveCounter();
-    Memory.put(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize), m_Value);
+
+    for (int i = 0; (i <= tmpCnt); i++) // Send to memory in parts of bytes.
+    {
+      Memory.write(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize) + i, NewCaption[i]);
+      //  Memory.put(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize), m_Value);
+      delay(Delay);
+    };
+
     delay(Delay);
 
     return true; // Changed
@@ -97,6 +104,27 @@ bool EPList<InitStringSize>::pushItem(const char *NewCaption)
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <unsigned int InitStringSize>
+bool EPList<InitStringSize>::removeItem()
+{
+  if ((MemReady()) && (ItemsCounter > 0))
+  {
+
+    for (int i = 0; (i <= m_StringSize); i++) // Send to memory in parts of bytes.
+    {
+      Memory.write(sizeof(ItemsCounter) + ((ItemsCounter - 1) * m_StringSize) + i, '\0');
+      delay(Delay);
+    };
+
+    ItemsCounter--;
+    SaveCounter();
+
+    delay(Delay);
+    return true; // Changed
+  };
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <unsigned int InitStringSize>
 bool EPList<InitStringSize>::ClearList(bool areyousure)
 {
   if ((MemReady()) && (areyousure))
@@ -105,9 +133,9 @@ bool EPList<InitStringSize>::ClearList(bool areyousure)
     ItemsCounter = 0;
     Memory.put(0, ItemsCounter);
 
-    return true;  //  Changed 
+    return true; //  Changed
   };
-  return false;  // Not Changed (memory not ready)
+  return false; // Not Changed (memory not ready)
 };
 
 template <unsigned int InitStringSize>
@@ -118,7 +146,7 @@ const ExternalEEPROM *EPList<InitStringSize>::RawAccess()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <unsigned int InitStringSize>
-const char * EPList<InitStringSize>::operator[](const unsigned int &Index)
+const char *EPList<InitStringSize>::operator[](const unsigned int &Index)
 {
   return getItem(Index);
 }
