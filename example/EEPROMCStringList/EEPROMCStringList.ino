@@ -1,5 +1,4 @@
 #include <EPList.h>
-#include <EPList.cpp> // Include cpp file as well for link template functions.
 
 /*
 Arduino EEPROM CString List Manager  - EPList (For keep some Strings on Arduino EEPROM / External EEPROM and minimize use memory on Arduino Board).
