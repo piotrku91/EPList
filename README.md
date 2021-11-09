@@ -15,15 +15,15 @@ SparkFun_External_EEPROM.h // Click here to get the library: http://librarymanag
 
 ### Tips:
 
-- For proper work execute Wire.begin() function in setup() function (main sketch).
+- For proper work execute Wire.begin() function in setup() function (main sketch). (External EEPROM)
 
-- When you finish your list is better to set Write Protect on your chip.
+- When you finish your list is better to set Write Protect on your chip. (External EEPROM)
 
 ### Example of create objects:
 
-EPList<EEPROMClass,64> EC(4096); // Static allocation (i2c chip Address)
+EPList<EEPROMClass,64> EC(4096); // Static allocation (Size of EEPROM)
 
-EPList<EEPROMClass,64> *EC = new EPList<64>(4096); // Dynamic allocation (Address, Size of EEPROM chip)
+EPList<EEPROMClass,64> *EC = new EPList<64>(4096); // Dynamic allocation (Size of EEPROM chip)
 
 
 EPList<ExternalEEPROM,64> EC(0x50,32000); // Static allocation ExternalEEPROM (i2c chip Address, Size of EEPROM chip)
@@ -43,6 +43,7 @@ EC->pushItem("Save your space. Thank you.");
 #### Get some Strings from list on EEPROM in easy way 
 
  Serial.println(EC[0]);
+ Serial.println((*EC)[0]);
 
  #### Change some Strings from list on EEPROM in easy way 
 
